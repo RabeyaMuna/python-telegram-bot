@@ -50,6 +50,11 @@ if GITHUB_ACTIONS and BOTS is not None and JOB_INDEX is not None:
     BOTS = json.loads(base64.b64decode(BOTS).decode(TextEncoding.UTF_8))
     JOB_INDEX = int(JOB_INDEX)
 
+# Support for TG_TOKEN_DEFAULT_BOT environment variables
+TG_TOKEN_DEFAULT_BOT0 = os.getenv("TG_TOKEN_DEFAULT_BOT0", None)
+TG_TOKEN_DEFAULT_BOT1 = os.getenv("TG_TOKEN_DEFAULT_BOT1", None)
+TG_TOKEN_DEFAULT_BOT2 = os.getenv("TG_TOKEN_DEFAULT_BOT2", None)
+
 FALLBACKS = json.loads(base64.b64decode(FALLBACKS).decode(TextEncoding.UTF_8))  # type: list[dict[str, str]]
 
 
@@ -59,6 +64,15 @@ class BotInfoProvider:
 
     @staticmethod
     def _get_value(key, fallback):
+        # If TG_TOKEN_DEFAULT_BOT* env vars are set, use them for token
+        if key == "token":
+            if TG_TOKEN_DEFAULT_BOT0 is not None:
+                return TG_TOKEN_DEFAULT_BOT0
+            if TG_TOKEN_DEFAULT_BOT1 is not None:
+                return TG_TOKEN_DEFAULT_BOT1
+            if TG_TOKEN_DEFAULT_BOT2 is not None:
+                return TG_TOKEN_DEFAULT_BOT2
+
         # If we're running as a github action then fetch bots from the repo secrets
         if GITHUB_ACTIONS and BOTS is not None and JOB_INDEX is not None:
             try:

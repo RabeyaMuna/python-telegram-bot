@@ -2334,7 +2334,7 @@ class Message(MaybeInaccessibleMessage):
     async def reply_media_group(
         self,
         media: Sequence[
-            Union["InputMediaAudio", "InputMediaDocument", "InputMediaPhoto", "InputMediaVideo"]
+            Union["InputMediaAudio", "InputMediaDocument", "InputMediaLivePhoto", "InputMediaPhoto", "InputMediaVideo"]
         ],
         disable_notification: ODVInput[bool] = DEFAULT_NONE,
         protect_content: ODVInput[bool] = DEFAULT_NONE,
@@ -2599,6 +2599,7 @@ class Message(MaybeInaccessibleMessage):
         reply_parameters: Optional["ReplyParameters"] = None,
         message_effect_id: Optional[str] = None,
         allow_paid_broadcast: Optional[bool] = None,
+        ephemeral_message_parameters: Optional["EphemeralMessageParameters"] = None,
         suggested_post_parameters: Optional["SuggestedPostParameters"] = None,
         *,
         reply_to_message_id: Optional[int] = None,
@@ -2665,6 +2666,7 @@ class Message(MaybeInaccessibleMessage):
             business_connection_id=self.business_connection_id,
             message_effect_id=message_effect_id,
             allow_paid_broadcast=allow_paid_broadcast,
+            ephemeral_message_parameters=ephemeral_message_parameters,
             direct_messages_topic_id=self._extract_direct_messages_topic_id(),
             suggested_post_parameters=suggested_post_parameters,
         )

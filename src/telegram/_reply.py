@@ -484,3 +484,60 @@ class ReplyParameters(TelegramObject):
         )
 
         return super().de_json(data=data, bot=bot)
+
+
+class EphemeralMessageParameters(TelegramObject):
+    """
+    Describes the parameters of a message to be sent as the result of an inline callback query
+    with a :paramref:`~telegram.CallbackQuery.ephemeral_message_parameters` parameter.
+
+    Objects of this class are comparable in terms of equality. Two objects of this class are
+    considered equal, if their :attr:`callback_query_id` is equal.
+
+    .. versionadded:: NEXT.VERSION
+
+    Args:
+        receiver_user_id (:obj:`int`): Identifier of the user whose messages will be shown in
+            the result. Must be a member of the target chat or an existing user.
+        callback_query_id (:obj:`str`): Identifier of the callback query that triggered the
+            message to be sent.
+        replace_callback_query_message (:obj:`bool`, optional): Pass :obj:`True` if the message
+            should be sent as a result of the callback query with which the user pressed the
+            button. Otherwise, the message will be sent as a result of the callback query with
+            which the inline button was created.
+
+    Attributes:
+        receiver_user_id (:obj:`int`): Identifier of the user whose messages will be shown in
+            the result. Must be a member of the target chat or an existing user.
+        callback_query_id (:obj:`str`): Identifier of the callback query that triggered the
+            message to be sent.
+        replace_callback_query_message (:obj:`bool`): Optional. Pass :obj:`True` if the message
+            should be sent as a result of the callback query with which the user pressed the
+            button. Otherwise, the message will be sent as a result of the callback query with
+            which the inline button was created.
+
+    """
+
+    __slots__ = (
+        "callback_query_id",
+        "replace_callback_query_message",
+        "receiver_user_id",
+    )
+
+    def __init__(
+        self,
+        receiver_user_id: int,
+        callback_query_id: str,
+        replace_callback_query_message: Optional[bool] = None,
+        *,
+        api_kwargs: Optional[JSONDict] = None,
+    ):
+        super().__init__(api_kwargs=api_kwargs)
+
+        self.receiver_user_id: int = receiver_user_id
+        self.callback_query_id: str = callback_query_id
+        self.replace_callback_query_message: Optional[bool] = replace_callback_query_message
+
+        self._id_attrs = (self.callback_query_id,)
+
+        self._freeze()

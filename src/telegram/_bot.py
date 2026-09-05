@@ -1750,6 +1750,7 @@ class Bot(TelegramObject, contextlib.AbstractAsyncContextManager["Bot"]):
         business_connection_id: Optional[str] = None,
         message_effect_id: Optional[str] = None,
         allow_paid_broadcast: Optional[bool] = None,
+        ephemeral_message_parameters: Optional["EphemeralMessageParameters"] = None,
         direct_messages_topic_id: Optional[int] = None,
         suggested_post_parameters: Optional["SuggestedPostParameters"] = None,
         *,
@@ -1829,6 +1830,11 @@ class Bot(TelegramObject, contextlib.AbstractAsyncContextManager["Bot"]):
             allow_paid_broadcast (:obj:`bool`, optional): |allow_paid_broadcast|
 
                 .. versionadded:: 21.7
+            ephemeral_message_parameters (:class:`telegram.EphemeralMessageParameters`, optional):
+                Parameters for the message to be sent as the result of an inline callback query.
+                The message will be a text or a media message.
+
+                .. versionadded:: NEXT.VERSION
             suggested_post_parameters (:class:`telegram.SuggestedPostParameters`, optional):
                 |suggested_post_parameters|
 
@@ -1895,6 +1901,7 @@ class Bot(TelegramObject, contextlib.AbstractAsyncContextManager["Bot"]):
             business_connection_id=business_connection_id,
             message_effect_id=message_effect_id,
             allow_paid_broadcast=allow_paid_broadcast,
+            ephemeral_message_parameters=ephemeral_message_parameters,
             direct_messages_topic_id=direct_messages_topic_id,
             suggested_post_parameters=suggested_post_parameters,
         )
@@ -2758,7 +2765,7 @@ class Bot(TelegramObject, contextlib.AbstractAsyncContextManager["Bot"]):
         self,
         chat_id: Union[int, str],
         media: Sequence[
-            Union["InputMediaAudio", "InputMediaDocument", "InputMediaPhoto", "InputMediaVideo"]
+            Union["InputMediaAudio", "InputMediaDocument", "InputMediaLivePhoto", "InputMediaPhoto", "InputMediaVideo"]
         ],
         disable_notification: ODVInput[bool] = DEFAULT_NONE,
         protect_content: ODVInput[bool] = DEFAULT_NONE,

@@ -1107,7 +1107,12 @@ class TestMaskPositionWithRequest(MaskPositionTestBase):
             ss = await bot.get_sticker_set(name)
             assert isinstance(ss, StickerSet)
         except BadRequest as e:
-            if not e.message == "Stickerset_invalid":
+            # Some BadRequest messages indicate that the sticker set is invalid/absent
+            # while others are due to rate limiting (flood control). Handle both.
+            msg = getattr(e, "message", str(e))
+            if "Stickerset_invalid" not in msg:
+                if "Flood control exceeded" in msg or "flood control" in msg.lower():
+                    pytest.xfail("Flood control exceeded; skipping test that requires live Telegram API")
                 raise e
             sticker_set = await bot.create_new_sticker_set(
                 chat_id,

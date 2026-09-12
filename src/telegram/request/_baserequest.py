@@ -207,6 +207,23 @@ class BaseRequest(
         json_data = self.parse_json_payload(result)
         # For successful requests, the results are in the 'result' entry
         # see https://core.telegram.org/bots/api#making-requests
+        # However, even on HTTP success the TG API may signal an error via the JSON payload
+        ok = json_data.get("ok")
+        if ok is False or ("error_code" in json_data and not ok):
+            message = json_data.get("description") or "Telegram API returned an error"
+            parameters = json_data.get("parameters")
+            if parameters:
+                migrate_to_chat_id = parameters.get("migrate_to_chat_id")
+                if migrate_to_chat_id:
+                    raise ChatMigrated(migrate_to_chat_id)
+                retry_after = parameters.get("retry_after")
+                if retry_after:
+                    raise RetryAfter(retry_after)
+
+                message += f". The server response contained unknown parameters: {parameters}"
+
+            raise BadRequest(message)
+
         return json_data["result"]
 
     @final
@@ -319,7 +336,35 @@ class BaseRequest(
         if HTTPStatus.OK <= code <= 299:
             # 200-299 range are HTTP success statuses
             # starting with Py 3.12 we can use `HTTPStatus.is_success`
-            return payload
+            # Even for HTTP-success codes Telegram may encode an error in the JSON payload
+            # (e.g. {"ok": false, ...}, or parameters.retry_after / migrate_to_chat_id).
+            # Parse the payload and raise Telegram-level errors if present.
+            try:
+                response_data = self.parse_json_payload(payload)
+            except TelegramError:
+                # Not a JSON payload or parsing failed -> treat as a plain successful response
+                return payload
+            else:
+                # If Telegram indicates an error inside the JSON, raise appropriate error
+                ok = response_data.get("ok")
+                if ok is False or "error_code" in response_data and not ok:
+                    message = response_data.get("description") or f"{HTTPStatus.OK.phrase} ({HTTPStatus.OK.value})"
+                    parameters = response_data.get("parameters")
+                    if parameters:
+                        migrate_to_chat_id = parameters.get("migrate_to_chat_id")
+                        if migrate_to_chat_id:
+                            raise ChatMigrated(migrate_to_chat_id)
+                        retry_after = parameters.get("retry_after")
+                        if retry_after:
+                            raise RetryAfter(retry_after)
+
+                        message += f". The server response contained unknown parameters: {parameters}"
+
+                    # Default to BadRequest for Telegram-level errors reported in payload.
+                    raise BadRequest(message)
+
+                # No Telegram-level error -> return raw payload
+                return payload
 
         try:
             message = f"{HTTPStatus(code).phrase} ({code})"

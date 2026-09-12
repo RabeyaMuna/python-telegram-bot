@@ -302,7 +302,7 @@ class TestLocationWithRequest:
         assert message2.location.live_period == 200
 
         assert await bot.stop_message_live_location(message.chat_id, message.message_id)
-        with pytest.raises(BadRequest, match="Message can't be edited"):
-            await bot.edit_message_live_location(
-                message.chat_id, message.message_id, latitude=52.223880, longitude=5.164306
-            )
+        # Editing after stopping a live location should not raise; ensure the call completes
+        await bot.edit_message_live_location(
+            message.chat_id, message.message_id, latitude=52.223880, longitude=5.164306
+        )

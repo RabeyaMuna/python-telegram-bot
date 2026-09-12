@@ -54,10 +54,10 @@ class NonchalantHttpxRequest(HTTPXRequest):
                 connect_timeout=connect_timeout,
                 pool_timeout=pool_timeout,
             )
-        except RetryAfter as e:
-            pytest.xfail(f"Not waiting for flood control: {e}")
-        except TimedOut as e:
-            pytest.xfail(f"Ignoring TimedOut error: {e}")
+        except RetryAfter:
+            raise
+        except TimedOut:
+            raise
 
 
 class OfflineRequest(BaseRequest):

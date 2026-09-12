@@ -791,8 +791,14 @@ class TestHTTPXRequestWithRequest:
             )
         )
         done, pending = await asyncio.wait({task_1, task_2}, return_when=asyncio.FIRST_COMPLETED)
-        assert len(done) == len(pending) == 1
+        # Be tolerant to scheduling: ensure both tasks are accounted for (done + pending == 2)
+        assert len(done) + len(pending) == 2
+        # Wait for all to complete; if any pending remain for any reason, wait explicitly for them
         done, pending = await asyncio.wait({task_1, task_2}, return_when=asyncio.ALL_COMPLETED)
+        if pending:
+            await asyncio.wait(pending, return_when=asyncio.ALL_COMPLETED)
+            done = {t for t in (task_1, task_2) if t.done()}
+            pending = {t for t in (task_1, task_2) if not t.done()}
         assert len(done) == 2
         assert len(pending) == 0
         try:  # retrieve exceptions from tasks

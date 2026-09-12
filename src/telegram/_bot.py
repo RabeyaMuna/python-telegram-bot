@@ -3184,11 +3184,11 @@ class Bot(TelegramObject, contextlib.AbstractAsyncContextManager["Bot"]):
         """
         # The location parameter is a convenience functionality added by us, so enforcing the
         # mutual exclusivity here is nothing that Telegram would handle anyway
-        if not (all([latitude, longitude]) or location):
+        if not ((latitude is not None and longitude is not None) or location):
             raise ValueError(
                 "Either location or latitude and longitude must be passed as argument."
             )
-        if not (latitude is not None or longitude is not None) ^ bool(location):
+        if location is not None and (latitude is not None or longitude is not None):
             raise ValueError(
                 "Either location or latitude and longitude must be passed as argument. Not both."
             )

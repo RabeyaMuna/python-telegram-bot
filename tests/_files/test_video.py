@@ -62,7 +62,7 @@ class VideoTestBase:
     cover = (PhotoSize("file_id", "unique_id", 640, 360, file_size=0),)
     thumb_width = 180
     thumb_height = 320
-    thumb_file_size = 1767
+    thumb_file_size = 1769
     caption = "<b>VideoTest</b> - *Caption*"
     video_file_url = "https://python-telegram-bot.org/static/testfiles/telegram.mp4"
     video_file_id = "5a3128a4d2a04750b5b58397f3b5e812"

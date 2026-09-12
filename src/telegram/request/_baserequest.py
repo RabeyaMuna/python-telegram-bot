@@ -207,6 +207,25 @@ class BaseRequest(
         json_data = self.parse_json_payload(result)
         # For successful requests, the results are in the 'result' entry
         # see https://core.telegram.org/bots/api#making-requests
+        # The Bot API may return HTTP 200 with an error inside the payload (ok: False).
+        # Respect that and raise appropriate TelegramError exceptions when needed.
+        if not json_data.get("ok", True):
+            description = json_data.get("description", "No description provided")
+            error_code = json_data.get("error_code")
+            parameters = json_data.get("parameters")
+            if parameters:
+                migrate_to_chat_id = parameters.get("migrate_to_chat_id")
+                if migrate_to_chat_id:
+                    raise ChatMigrated(migrate_to_chat_id)
+                retry_after = parameters.get("retry_after")
+                if retry_after:
+                    raise RetryAfter(retry_after)
+            if error_code == 401 or error_code == 404:
+                raise InvalidToken(description)
+            if error_code == 403:
+                raise Forbidden(description)
+            msg = description if not error_code else f"{description} (error code: {error_code})"
+            raise BadRequest(msg)
         return json_data["result"]
 
     @final
@@ -319,6 +338,31 @@ class BaseRequest(
         if HTTPStatus.OK <= code <= 299:
             # 200-299 range are HTTP success statuses
             # starting with Py 3.12 we can use `HTTPStatus.is_success`
+            # However, Telegram may indicate API-level errors inside a 2xx response (ok: False).
+            try:
+                response_data = self.parse_json_payload(payload)
+            except TelegramError:
+                # If we cannot parse the payload as JSON or it's malformed, return raw payload
+                # (preserve previous behaviour for non-JSON success responses).
+                return payload
+            # If the Bot API returned ok: False, raise the appropriate TelegramError
+            if not response_data.get("ok", True):
+                description = response_data.get("description", "No description provided")
+                error_code = response_data.get("error_code")
+                parameters = response_data.get("parameters")
+                if parameters:
+                    migrate_to_chat_id = parameters.get("migrate_to_chat_id")
+                    if migrate_to_chat_id:
+                        raise ChatMigrated(migrate_to_chat_id)
+                    retry_after = parameters.get("retry_after")
+                    if retry_after:
+                        raise RetryAfter(retry_after)
+                if error_code == 401 or error_code == 404:
+                    raise InvalidToken(description)
+                if error_code == 403:
+                    raise Forbidden(description)
+                msg = description if not error_code else f"{description} (error code: {error_code})"
+                raise BadRequest(msg)
             return payload
 
         try:

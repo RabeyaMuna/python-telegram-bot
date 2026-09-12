@@ -662,7 +662,7 @@ class TestStickerSetWithoutRequest(StickerSetTestBase):
         await offline_bot.add_sticker_to_set(
             chat_id,
             "name",
-            sticker=InputSticker(sticker=file, emoji_list=["this"], format="static"),
+            sticker=InputSticker(sticker=file, emoji_list=["this"], format=StickerFormat.STATIC),
         )
         assert test_flag
 
@@ -686,7 +686,7 @@ class TestStickerSetWithoutRequest(StickerSetTestBase):
 
             monkeypatch.setattr(offline_bot, "_post", make_assertion)
             await offline_bot.set_sticker_set_thumbnail(
-                "name", chat_id, thumbnail=file, format="static"
+                "name", chat_id, thumbnail=file, format=StickerFormat.STATIC
             )
             assert test_flag
         finally:
@@ -918,7 +918,7 @@ class TestStickerSetWithRequest:
     async def test_bot_methods_3_png(self, bot, chat_id, sticker_set_thumb_file):
         await asyncio.sleep(1)
         assert await bot.set_sticker_set_thumbnail(
-            f"test_by_{bot.username}", chat_id, format="static", thumbnail=sticker_set_thumb_file
+            f"test_by_{bot.username}", chat_id, format=StickerFormat.STATIC, thumbnail=sticker_set_thumb_file
         )
 
     async def test_bot_methods_3_tgs(
@@ -931,10 +931,10 @@ class TestStickerSetWithRequest:
             bot.set_sticker_set_thumbnail(
                 animated_test,
                 chat_id,
-                "animated",
+                format=StickerFormat.ANIMATED,
                 thumbnail=animated_sticker_file,
             ),
-            bot.set_sticker_set_thumbnail(animated_test, chat_id, "animated", thumbnail=file_id),
+            bot.set_sticker_set_thumbnail(animated_test, chat_id, format=StickerFormat.ANIMATED, thumbnail=file_id),
         )
         assert all(await tasks)
 

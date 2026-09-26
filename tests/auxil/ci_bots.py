@@ -52,6 +52,18 @@ if GITHUB_ACTIONS and BOTS is not None and JOB_INDEX is not None:
 
 FALLBACKS = json.loads(base64.b64decode(FALLBACKS).decode(TextEncoding.UTF_8))  # type: list[dict[str, str]]
 
+# Mapping from bot info keys to environment variable names.
+# These allow overriding the fallback values via environment variables.
+_KEY_TO_ENVVAR = {
+    "token": "TELEGRAM_BOT_TOKEN",
+    "chat_id": "TELEGRAM_CHAT_ID",
+    "super_group_id": "TELEGRAM_SUPER_GROUP_ID",
+    "forum_group_id": "TELEGRAM_FORUM_GROUP_ID",
+    "channel_id": "TELEGRAM_CHANNEL_ID",
+    "payment_provider_token": "TELEGRAM_PAYMENT_PROVIDER_TOKEN",
+    "subscription_channel_id": "TELEGRAM_SUBSCRIPTION_CHANNEL_ID",
+}
+
 
 class BotInfoProvider:
     def __init__(self):
@@ -65,6 +77,13 @@ class BotInfoProvider:
                 return BOTS[JOB_INDEX][key]
             except (IndexError, KeyError):
                 pass
+
+        # Check if an environment variable is set for this key
+        envvar = _KEY_TO_ENVVAR.get(key)
+        if envvar is not None:
+            env_value = os.getenv(envvar)
+            if env_value is not None:
+                return env_value
 
         # Otherwise go with the fallback
         return fallback

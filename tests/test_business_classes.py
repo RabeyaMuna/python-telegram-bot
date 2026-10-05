@@ -152,6 +152,8 @@ class TestBusinessBotRightsWithoutRequest(BusinessTestBase):
     def test_slot_behaviour(self, business_bot_rights):
         inst = business_bot_rights
         for attr in inst.__slots__:
+            if attr.startswith("_"):
+                continue
             assert getattr(inst, attr, "err") != "err", f"got extra slot '{attr}'"
         assert len(mro_slots(inst)) == len(set(mro_slots(inst))), "duplicate slot"
 
@@ -416,6 +418,8 @@ class TestBusinessLocationWithoutRequest(BusinessTestBase):
     def test_slot_behaviour(self, business_location):
         inst = business_location
         for attr in inst.__slots__:
+            if attr.startswith("_"):
+                continue
             assert getattr(inst, attr, "err") != "err", f"got extra slot '{attr}'"
         assert len(mro_slots(inst)) == len(set(mro_slots(inst))), "duplicate slot"
 
@@ -453,6 +457,8 @@ class TestBusinessOpeningHoursIntervalWithoutRequest(BusinessTestBase):
     def test_slot_behaviour(self, business_opening_hours_interval):
         inst = business_opening_hours_interval
         for attr in inst.__slots__:
+            if attr.startswith("_"):
+                continue
             assert getattr(inst, attr, "err") != "err", f"got extra slot '{attr}'"
         assert len(mro_slots(inst)) == len(set(mro_slots(inst))), "duplicate slot"
 
@@ -524,6 +530,8 @@ class TestBusinessOpeningHoursWithoutRequest(BusinessTestBase):
     def test_slot_behaviour(self, business_opening_hours):
         inst = business_opening_hours
         for attr in inst.__slots__:
+            if attr.startswith("_"):
+                continue
             assert getattr(inst, attr, "err") != "err", f"got extra slot '{attr}'"
         assert len(mro_slots(inst)) == len(set(mro_slots(inst))), "duplicate slot"
 

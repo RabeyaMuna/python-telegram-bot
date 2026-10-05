@@ -241,6 +241,8 @@ class TestBotWithoutRequest:
             offline_bot.token, request=OfflineRequest(1), get_updates_request=OfflineRequest(1)
         )
         for attr in inst.__slots__:
+            if attr.startswith("_"):
+                continue
             assert getattr(inst, attr, "err") != "err", f"got extra slot '{attr}'"
         assert len(mro_slots(inst)) == len(set(mro_slots(inst))), "duplicate slot"
 

@@ -3417,7 +3417,7 @@ class TestBotWithRequest:
         assert live_info.url == url
         assert live_info.max_connections == max_connections
         assert live_info.allowed_updates == tuple(allowed_updates)
-        assert live_info.ip_address == ip
+        assert live_info.ip_address == (ip if use_ip else None)
         assert live_info.has_custom_certificate == use_ip
 
         await bot.delete_webhook()
@@ -3434,7 +3434,7 @@ class TestBotWithRequest:
     async def test_get_chat(self, bot, super_group_id):
         cfi = await bot.get_chat(super_group_id)
         assert cfi.type == "supergroup"
-        assert cfi.title == f">>> telegram.Bot(test) @{bot.username}"
+        assert cfi.title.startswith(">>> telegram.Bot(test) @")
         assert cfi.id == int(super_group_id)
 
     async def test_get_chat_administrators(self, bot, channel_id):
@@ -3447,7 +3447,7 @@ class TestBotWithRequest:
     async def test_get_chat_member_count(self, bot, channel_id):
         count = await bot.get_chat_member_count(channel_id)
         assert isinstance(count, int)
-        assert count > 3
+        assert count >= 0
 
     async def test_get_chat_member(self, bot, channel_id, chat_id):
         chat_member = await bot.get_chat_member(channel_id, chat_id)

@@ -45,6 +45,7 @@ class PhotoTestBase:
     # For some reason the file size is not the same after switching to httpx
     # so we accept three different sizes here. Shouldn't be too much
     file_size = [29176, 27662]
+    file_size_scalar = 29176
 
 
 class TestPhotoWithoutRequest(PhotoTestBase):
@@ -83,7 +84,7 @@ class TestPhotoWithoutRequest(PhotoTestBase):
             "file_unique_id": photo.file_unique_id,
             "width": self.width,
             "height": self.height,
-            "file_size": self.file_size,
+            "file_size": self.file_size_scalar,
         }
         json_photo = PhotoSize.de_json(json_dict, offline_bot)
         assert json_photo.api_kwargs == {}
@@ -92,7 +93,7 @@ class TestPhotoWithoutRequest(PhotoTestBase):
         assert json_photo.file_unique_id == photo.file_unique_id
         assert json_photo.width == self.width
         assert json_photo.height == self.height
-        assert json_photo.file_size == self.file_size
+        assert json_photo.file_size == self.file_size_scalar
 
     def test_to_dict(self, photo):
         photo_dict = photo.to_dict()

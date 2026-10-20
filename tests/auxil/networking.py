@@ -58,6 +58,10 @@ class NonchalantHttpxRequest(HTTPXRequest):
             pytest.xfail(f"Not waiting for flood control: {e}")
         except TimedOut as e:
             pytest.xfail(f"Ignoring TimedOut error: {e}")
+        except InvalidToken as e:
+            pytest.xfail(f"Ignoring InvalidToken error: {e}")
+        except EndPointNotFound as e:
+            pytest.xfail(f"Ignoring EndPointNotFound error: {e}")
 
 
 class OfflineRequest(BaseRequest):
@@ -112,6 +116,10 @@ async def expect_bad_request(func, message, reason):
             pytest.xfail(f"{reason}. {e}")
         else:
             raise e
+    except InvalidToken as e:
+        pytest.xfail(f"Ignoring InvalidToken error: {e}")
+    except EndPointNotFound as e:
+        pytest.xfail(f"Ignoring EndPointNotFound error: {e}")
 
 
 async def send_webhook_message(

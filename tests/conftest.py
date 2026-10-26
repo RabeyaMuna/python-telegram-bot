@@ -82,6 +82,17 @@ def no_rerun_after_xfail_or_flood(error, name, test: pytest.Function, plugin):
 
 def pytest_collection_modifyitems(items: list[pytest.Item]):
     """Here we add a flaky marker to all request making tests and a (no_)req marker to the rest."""
+    offline_only = env_var_2_bool(
+        os.getenv("PTB_OFFLINE_ONLY", "false")
+    ) or not BOT_INFO_PROVIDER.has_complete_ci_bot_info()
+    online_fixtures = {
+        "bot",
+        "cdc_bot",
+        "one_time_bot",
+        "raw_bot",
+    }
+    always_online_fixtures = {"default_bot", "tz_bot"}
+
     for item in items:  # items are the test methods
         parent = item.parent  # Get the parent of the item (class, or module if defined outside)
         if parent is None:  # should never happen, but just in case
@@ -100,6 +111,18 @@ def pytest_collection_modifyitems(items: list[pytest.Item]):
             name="no_req"
         ):
             parent.add_marker(pytest.mark.no_req)
+
+        fixture_names = set(getattr(item, "fixturenames", ()))
+        uses_online_fixture = bool(always_online_fixtures.intersection(fixture_names)) or (
+            not item.nodeid.startswith("tests/ext/")
+            and bool(online_fixtures.intersection(fixture_names))
+        )
+        if offline_only and (
+            parent.name.endswith("WithRequest")
+            or item.get_closest_marker(name="req")
+            or uses_online_fixture
+        ):
+            item.add_marker(pytest.mark.skip(reason="requires access to the Telegram Bot API"))
 
 
 if GITHUB_ACTIONS and JOB_INDEX == 0:

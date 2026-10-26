@@ -210,8 +210,8 @@ class TestCallbackContext:
         finally:
             app.bot = bot
 
-    async def test_drop_callback_data(self, bot, chat_id):
-        new_bot = make_bot(token=bot.token, arbitrary_callback_data=True, offline=False)
+    async def test_drop_callback_data(self, bot):
+        new_bot = make_bot(token=bot.token, arbitrary_callback_data=True, offline=True)
         app = ApplicationBuilder().bot(new_bot).build()
 
         update = Update(
@@ -219,14 +219,11 @@ class TestCallbackContext:
         )
 
         callback_context = CallbackContext.from_update(update, app)
-        async with app:
-            await app.bot.send_message(
-                chat_id=chat_id,
-                text="test",
-                reply_markup=InlineKeyboardMarkup.from_button(
-                    InlineKeyboardButton("test", callback_data="callback_data")
-                ),
+        app.bot.callback_data_cache.process_keyboard(
+            InlineKeyboardMarkup.from_button(
+                InlineKeyboardButton("test", callback_data="callback_data")
             )
+        )
         keyboard_uuid = app.bot.callback_data_cache.persistence_data[0][0][0]
         button_uuid = next(iter(app.bot.callback_data_cache.persistence_data[0][0][2]))
         callback_data = keyboard_uuid + button_uuid

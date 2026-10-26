@@ -58,6 +58,20 @@ class BotInfoProvider:
         self._cached = {}
 
     @staticmethod
+    def has_complete_ci_bot_info() -> bool:
+        """Whether this CI job has one complete, internally consistent bot configuration."""
+        if not GITHUB_ACTIONS:
+            return True
+        if BOTS is None or JOB_INDEX is None:
+            return False
+
+        try:
+            configured_keys = BOTS[JOB_INDEX].keys()
+        except IndexError:
+            return False
+        return FALLBACKS[0].keys() <= configured_keys
+
+    @staticmethod
     def _get_value(key, fallback):
         # If we're running as a github action then fetch bots from the repo secrets
         if GITHUB_ACTIONS and BOTS is not None and JOB_INDEX is not None:

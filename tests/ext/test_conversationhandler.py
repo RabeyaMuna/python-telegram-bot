@@ -1072,7 +1072,7 @@ class TestConversationHandler:
             conversation_timeout=0.5,
         )
         if not jq:
-            app = ApplicationBuilder().token(bot.token).job_queue(None).build()
+            app = ApplicationBuilder().bot(bot).job_queue(None).build()
         app.add_handler(handler)
 
         message = Message(
@@ -1116,7 +1116,7 @@ class TestConversationHandler:
         class DictJB(JobQueue):
             pass
 
-        app = ApplicationBuilder().token(bot.token).job_queue(DictJB()).build()
+        app = ApplicationBuilder().bot(bot).job_queue(DictJB()).build()
         monkeypatch.setattr(app.job_queue, "run_once", mocked_run_once)
         handler = ConversationHandler(
             entry_points=self.entry_points,

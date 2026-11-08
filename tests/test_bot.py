@@ -404,21 +404,25 @@ class TestBotWithoutRequest:
 
         assert self.test_flag == "stop"
 
-    async def test_shutdown_at_error_in_request_in_init(self, monkeypatch, offline_bot):
+    async def test_shutdown_at_error_in_request_in_init(self, monkeypatch, bot_info):
+        test_bot = make_bot(bot_info, offline=True)
+
         async def get_me_error():
             raise httpx.HTTPError("BadRequest wrong token sry :(")
 
         async def shutdown(*args):
             self.test_flag = "stop"
 
-        monkeypatch.setattr(offline_bot, "get_me", get_me_error)
-        monkeypatch.setattr(offline_bot, "shutdown", shutdown)
+        monkeypatch.setattr(test_bot, "get_me", get_me_error)
+        monkeypatch.setattr(test_bot, "shutdown", shutdown)
 
-        async with offline_bot:
-            pass
+        with pytest.raises(httpx.HTTPError, match="BadRequest wrong token"):
+            async with test_bot:
+                pass
 
         assert self.test_flag == "stop"
 
+    @pytest.mark.req
     async def test_equality(self):
         async with (
             make_bot(token=FALLBACKS[0]["token"]) as a,
@@ -467,6 +471,7 @@ class TestBotWithoutRequest:
         finally:
             await bot.shutdown()
 
+    @pytest.mark.req
     async def test_get_me_and_properties(self, offline_bot):
         get_me_bot = await ExtBot(offline_bot.token).get_me()
 
@@ -492,6 +497,7 @@ class TestBotWithoutRequest:
     @pytest.mark.parametrize(
         ("cls", "logger_name"), [(Bot, "telegram.Bot"), (ExtBot, "telegram.ext.ExtBot")]
     )
+    @pytest.mark.req
     async def test_bot_method_logging(self, offline_bot: PytestExtBot, cls, logger_name, caplog):
         instance = cls(offline_bot.token)
         # Second argument makes sure that we ignore logs from e.g. httpx

@@ -87,8 +87,9 @@ class TestUpdater:
     # This is needed instead of pytest's temp_path because the file path gets too long on macOS
     # otherwise
     @pytest.fixture
-    def file_path(self) -> str:
-        path = TEST_DATA_PATH / "test.sock"
+    def file_path(self, request) -> str:
+        worker_id = getattr(request.config, "workerinput", {}).get("workerid", "master")
+        path = TEST_DATA_PATH / f"test-{worker_id}.sock"
         yield str(path)
         path.unlink(missing_ok=True)
 

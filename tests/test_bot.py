@@ -419,6 +419,7 @@ class TestBotWithoutRequest:
 
         assert self.test_flag == "stop"
 
+    @pytest.mark.req
     async def test_equality(self):
         async with (
             make_bot(token=FALLBACKS[0]["token"]) as a,
@@ -467,6 +468,7 @@ class TestBotWithoutRequest:
         finally:
             await bot.shutdown()
 
+    @pytest.mark.req
     async def test_get_me_and_properties(self, offline_bot):
         get_me_bot = await ExtBot(offline_bot.token).get_me()
 
@@ -492,6 +494,7 @@ class TestBotWithoutRequest:
     @pytest.mark.parametrize(
         ("cls", "logger_name"), [(Bot, "telegram.Bot"), (ExtBot, "telegram.ext.ExtBot")]
     )
+    @pytest.mark.req
     async def test_bot_method_logging(self, offline_bot: PytestExtBot, cls, logger_name, caplog):
         instance = cls(offline_bot.token)
         # Second argument makes sure that we ignore logs from e.g. httpx

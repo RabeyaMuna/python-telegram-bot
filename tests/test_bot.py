@@ -2672,8 +2672,8 @@ class TestBotWithRequest:
     # No need to duplicate here.
 
     async def test_invalid_token_server_response(self):
-        with pytest.raises(InvalidToken, match="The token `12` was rejected by the server."):
-            async with ExtBot(token="12"):
+        with pytest.raises(InvalidToken, match="The token `invalid_token` was rejected by the server."):
+            async with ExtBot(token="invalid_token"):
                 pass
 
     async def test_multiple_init_cycles(self, bot):
@@ -4532,7 +4532,7 @@ class TestBotWithRequest:
         with pytest.raises(
             InvalidToken, match="token was rejected by Telegram or the endpoint 'unknownEndpoint'"
         ):
-            await Bot(bot.token).do_api_request("unknown_endpoint")
+            await Bot("invalid_token").do_api_request("unknown_endpoint")
 
     @pytest.mark.filterwarnings("ignore::telegram.warnings.PTBUserWarning")
     @pytest.mark.parametrize("return_type", [Message, None])

@@ -561,7 +561,7 @@ class BusinessOpeningHours(TelegramObject):
             time intervals describing business opening hours.
     """
 
-    __slots__ = ("__zone_info", "opening_hours", "time_zone_name")
+    __slots__ = ("opening_hours", "time_zone_name")
 
     def __init__(
         self,
